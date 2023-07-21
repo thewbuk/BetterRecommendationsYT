@@ -8,3 +8,17 @@ document.getElementById("saveButton").addEventListener("click", function () {
   let viewsCount = document.getElementById("viewsCount").value;
   browser.storage.local.set({ viewsCount: viewsCount });
 });
+
+document.addEventListener("DOMContentLoaded", function () {
+  var checkbox = document.querySelector("#filtering-toggle");
+
+  // Get the current state of filtering
+  browser.storage.local.get("filteringEnabled", function (data) {
+    checkbox.checked = data.filteringEnabled;
+  });
+
+  // Update the storage when the checkbox is toggled
+  checkbox.addEventListener("change", function () {
+    browser.storage.local.set({ filteringEnabled: checkbox.checked });
+  });
+});
