@@ -1,21 +1,20 @@
 let observer = null;
 let viewLimit = 100000; // default view count if not set
 
-// Function to hide videos based on views
 function hideVideosBasedOnViews() {
   let videoItems = document.querySelectorAll("ytd-video-meta-block");
 
   videoItems.forEach((videoItem) => {
     let viewCountElement = videoItem.querySelector("span.inline-metadata-item");
     let viewCountText = viewCountElement ? viewCountElement.innerText : "";
+    let viewCount = parseInt(viewCountText.replace(/\D/g, ""));
 
-    // Add this line to see the view count text in the console
-    console.log("View count text:", viewCountText);
-
-    let viewCount = parseInt(viewCountText.split(" ")[0].replace(/\D/g, ""));
-
-    if (viewCount < viewLimit) {
-      videoItem.style.display = "none";
+    // Proceed only if the viewCount is a valid number
+    if (!isNaN(viewCount) && viewCount < viewLimit) {
+      let videoCard = videoItem.closest("ytd-rich-grid-media");
+      if (videoCard) {
+        videoCard.style.visibility = "hidden";
+      }
     }
   });
 }
