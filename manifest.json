@@ -1,0 +1,14 @@
+{
+  "manifest_version": 2,
+  "name": "Old Video Filter",
+  "version": "1.0",
+  "description": "Filters out recommended videos older than a specific date.",
+  "permissions": ["storage", "<all_urls>"],
+  "browser_action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "options_page": "options.html"
+}
