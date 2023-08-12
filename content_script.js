@@ -2,19 +2,36 @@ let observer = null;
 let viewLimit = 100000; // default view count if not set
 
 function hideVideosBasedOnViews() {
-  let videoItems = document.querySelectorAll("ytd-video-meta-block");
+  let videoItems = document.querySelectorAll("ytd-rich-grid-media");
 
   videoItems.forEach((videoItem) => {
-    let viewCountElement = videoItem.querySelector("span.inline-metadata-item");
-    let viewCountText = viewCountElement ? viewCountElement.innerText : "";
-    let viewCount = parseInt(viewCountText.replace(/\D/g, ""));
+    // Using ytd-video-meta-block class to get the view count
+    let metaBlock = videoItem.querySelector("ytd-video-meta-block");
+    let viewCountSpan = metaBlock
+      ? metaBlock.querySelector("span.inline-metadata-item")
+      : null;
+    let viewCountText = viewCountSpan ? viewCountSpan.innerText : "";
 
-    // Proceed only if the viewCount is a valid number
+    // Convert K and M to numeric values
+    let multiplier = 1;
+    if (viewCountText.includes("K")) {
+      multiplier = 1000;
+    } else if (viewCountText.includes("M")) {
+      multiplier = 1000000;
+    }
+
+    let viewCount = parseInt(viewCountText.replace(/\D/g, "")) * multiplier;
+
+    console.log(
+      `Processing video with text from metaBlock: ${viewCountText}, parsed view count: ${viewCount}`
+    );
+
+    // Hide the video item only if the viewCount is a valid number and less than viewLimit
     if (!isNaN(viewCount) && viewCount < viewLimit) {
-      let videoCard = videoItem.closest("ytd-rich-grid-media");
-      if (videoCard) {
-        videoCard.style.visibility = "hidden";
-      }
+      console.log(`Hiding video with view count: ${viewCount}`);
+      videoItem.style.display = "none";
+    } else {
+      videoItem.style.display = ""; // Reset display property if view count is greater
     }
   });
 }
@@ -53,28 +70,6 @@ browser.storage.local
       } and view count limit ${viewLimit}`
     );
   });
-
-// Listen to changes in the storage
-browser.storage.onChanged.addListener((changes, areaName) => {
-  if (areaName === "local") {
-    if (changes.viewsCount) {
-      viewLimit = changes.viewsCount.newValue;
-      console.log(`Changed view count limit to ${viewLimit}`);
-    }
-    if (changes.filteringEnabled) {
-      if (changes.filteringEnabled.newValue) {
-        startObserving();
-      } else {
-        stopObserving();
-      }
-      console.log(
-        `Filtering is now ${
-          changes.filteringEnabled.newValue ? "enabled" : "disabled"
-        }`
-      );
-    }
-  }
-});
 
 // Listen to changes in YouTube's internal state (necessary for single page apps)
 window.addEventListener("yt-navigate-finish", function () {
